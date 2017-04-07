@@ -1,0 +1,10 @@
+language: node_js
+
+node_js:
+   - "7"
+   - "node"
+
+services:
+   - rabbitmq
+
+sudo: false

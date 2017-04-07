@@ -1,5 +1,7 @@
 # wrappitmq – it wraps amqplib for us lazy people!
 
+[![Build Status](https://travis-ci.org/patrickd-/wrappitmq.node.svg?branch=master)](https://travis-ci.org/patrickd-/wrappitmq.node)
+
 ```
 npm install wrappitmq
 ```
