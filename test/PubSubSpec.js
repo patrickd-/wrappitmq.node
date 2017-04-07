@@ -1,7 +1,7 @@
 /* eslint import/no-extraneous-dependencies: ["error", {"devDependencies": true}] */
 const expect = require('chai').expect;
 const PubSub = require('./..').PubSub;
-const Barrier = require('../../utils').Barrier;
+const Barrier = require('../lib/Barrier');
 
 const config = {
   url: process.env.AMQP_URL || 'amqp://localhost:5672',
