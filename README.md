@@ -109,5 +109,5 @@ $ AMQP_URL="amqp://user:pass@localhost:5672" npm test
 
 Are always welcome!
 
-Initial development by @patrickd-
-Name suggested by @leschekfm :D
+* Initial development by @patrickd-
+* Name suggested by @leschekfm :D
