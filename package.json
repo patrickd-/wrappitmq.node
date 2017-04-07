@@ -1,0 +1,33 @@
+{
+  "name": "wrappitmq",
+  "version": "1.0.0",
+  "description": "Simplified AMQP 0-9-1 library offering a quick start into RabbitMQ based IPC.",
+  "license": "MIT",
+  "author": "patrick.d@ventral.org",
+  "keywords": [
+    "AMQP",
+    "AMQP 0-9-1",
+    "RabbitMQ",
+    "IPC",
+    "wrap",
+    "simple"
+  ],
+  "engineStrict": true,
+  "engines": {
+    "node": ">= 7.0.0"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --recursive"
+  },
+  "dependencies": {
+    "amqplib": "^0.5.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^3.13.1",
+    "eslint-config-airbnb-base": "^11.0.1",
+    "eslint-plugin-import": "^2.2.0",
+    "mocha": "^3.2.0"
+  }
+}

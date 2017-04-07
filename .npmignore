@@ -1,0 +1,7 @@
+.git*
+src
+tests
+.directory
+.npmignore
+Makefile
+*.tgz
