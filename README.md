@@ -1,9 +1,13 @@
-# wrappitmq
+# wrappitmq – it wraps amqplib for us lazy people!
 
-This is a nodejs library for Inter-Process Communication with RabbitMQ based on
-amqplib (AMQP 0-9-1). It intends to take care of all the complicated stuff and
-offers you a simple API that just works out of the box and just does what you
-expect it to.
+```
+npm install wrappitmq
+```
+
+This is a Node.JS library for Inter-Process Communication with RabbitMQ based on
+[amqplib](https://github.com/squaremo/amqp.node) (AMQP 0-9-1). It intends to
+take care of all the complicated stuff and offers you a simple API that just
+works out of the box and does what you expect it to (don't nail me down on this).
 
 It makes heavy use of async/await and requires node v7.
 
