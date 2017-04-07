@@ -149,4 +149,14 @@ describe('PubSub', () => {
       await sub.close();
     });
   });
+  describe('ack() and nack()', () => {
+    it('ack() calls should be ignored', async () => {
+      const pubsub = new PubSub(config);
+      await pubsub.nack();
+    });
+    it('nack() calls should be ignored', async () => {
+      const pubsub = new PubSub(config);
+      await pubsub.ack();
+    });
+  });
 });
