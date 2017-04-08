@@ -16,6 +16,19 @@ const configWithPrefetch = Object.assign({
 }, config);
 
 describe('WorkQueue', () => {
+  const cleanUp = async () => {
+    const queue1 = new WorkQueue(config);
+    await queue1.connect();
+    await queue1.delete();
+    await queue1.close();
+    const queue2 = new WorkQueue(config2);
+    await queue2.connect();
+    await queue2.delete();
+    await queue2.close();
+  };
+  beforeEach(cleanUp);
+  afterEach(cleanUp);
+
   describe('enqueue() and consume()', () => {
     it('should consume the same message we enqueue', async () => {
       const barrier = new Barrier(1);
@@ -31,7 +44,6 @@ describe('WorkQueue', () => {
       await prodQ.enqueue(originalMessage);
       await barrier.resolution();
       await prodQ.close();
-      await consQ.delete();
       await consQ.close();
     });
     it('should persistently enqueue messages even if no consumer is active', async () => {
@@ -48,7 +60,6 @@ describe('WorkQueue', () => {
       });
       await barrier.resolution();
       await prodQ.close();
-      await consQ.delete();
       await consQ.close();
     });
     it.skip('should wait until server acknowledges enqueue()', async () => {
@@ -71,7 +82,6 @@ describe('WorkQueue', () => {
       await barrier.resolution();
       expect(messages).to.deep.equal([1, 2, 3]);
       await prodQ.close();
-      await consQ.delete();
       await consQ.close();
     });
     it('should not receive messages on cancelled consumers', async () => {
@@ -103,7 +113,6 @@ describe('WorkQueue', () => {
       expect(messages1).to.deep.equal([1, 2, 3]);
       expect(messages2).to.deep.equal([4, 5, 6]);
       await prodQ.close();
-      await consQ.delete();
       await consQ.close();
     });
     it('should consume messages from the correct queue', async () => {
@@ -133,9 +142,7 @@ describe('WorkQueue', () => {
       expect(messages2).to.deep.equal([2]);
       await prodQ.close();
       await prodQ2.close();
-      await consQ.delete();
       await consQ.close();
-      await consQ2.delete();
       await consQ2.close();
     });
     it('should acknowledge the correct message', async () => {
@@ -167,8 +174,78 @@ describe('WorkQueue', () => {
       await barrierSecondTry.resolution();
       expect(messages).to.deep.equal([1, 2, 3, 1, 3]);
       await prodQ.close();
-      await consQ.delete();
       await consQ.close();
+    });
+    it('should reject enqueue() if broker nacked message', async () => {
+      const barrier = new Barrier(1);
+      const queue = new WorkQueue(config);
+      queue.on('error', () => {});
+      await queue.connect();
+      queue.channel.sendToQueue = async (q, msg, options, cb) => {
+        cb(new Error('i do not want that message'));
+      };
+      try {
+        await queue.enqueue({});
+      } catch (err) {
+        expect(err).to.be.an.instanceof(Error);
+        barrier.resolve();
+        return;
+      } finally {
+        await barrier.resolution();
+        await queue.close();
+      }
+    });
+    it('should emit an error if one happens within a consumer', async () => {
+      const barrier = new Barrier(1);
+      const queue = new WorkQueue(config);
+      const error = new Error('consumer error');
+      queue.on('error', (err) => {
+        expect(err).to.be.equal(error);
+        barrier.resolve();
+      });
+      await queue.connect();
+      const cancel = await queue.consume(async () => {
+        await cancel();
+        throw error;
+      });
+      queue.enqueue({});
+      await barrier.resolution();
+      await queue.close();
+    });
+    it('should still be usable after cancelling a consumer', async () => {
+      const barrier = new Barrier(1);
+      const queue = new WorkQueue(config);
+      const originalMessage = { Test: 123, TestTest: '123', t: [{ a: 'b' }] };
+      await queue.connect();
+      const cancel = await queue.consume(async () => {
+        throw new Error('this one was cancelled and still received something');
+      });
+      await cancel();
+      await queue.consume(async (message) => {
+        expect(message).to.deep.equal(originalMessage);
+        barrier.resolve();
+      });
+      queue.enqueue(originalMessage);
+      await barrier.resolution();
+      await queue.close();
+    });
+    it('should close connection if unsubscibed remotely', async () => {
+      const barrier = new Barrier(1);
+      const queue = new WorkQueue(config);
+      await queue.connect();
+      const close = queue.close;
+      queue.close = () => {
+        barrier.resolve();
+      };
+      queue.channel.consume = async (q, callback) => {
+        await callback(null);
+        return { consumerTag: 0 };
+      };
+      await queue.consume(async () => {
+        throw new Error('this one was cancelled and still received something');
+      });
+      await barrier.resolution();
+      await close();
     });
   });
 });
