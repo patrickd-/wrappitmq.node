@@ -1,6 +1,6 @@
 {
   "name": "wrappitmq",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Simplified AMQP 0-9-1 library offering a quick start into RabbitMQ based IPC.",
   "license": "MIT",
   "author": "patrick.d@ventral.org",
