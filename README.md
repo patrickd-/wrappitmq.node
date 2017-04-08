@@ -6,21 +6,14 @@
 npm install wrappitmq
 ```
 
-This is a Node.JS library for Inter-Process Communication with RabbitMQ based on
-[amqplib](https://github.com/squaremo/amqp.node) (AMQP 0-9-1). It intends to
-take care of all the complicated stuff and offers you a simple API that just
-works out of the box and does what you expect it to (don't nail me down on this).
+This is a Node.JS library for Inter-Process Communication with RabbitMQ based on [amqplib](https://github.com/squaremo/amqp.node) (AMQP 0-9-1). It intends to take care of all the complicated stuff and offers you a simple API that just works out of the box and does what you expect it to (don't nail me down on this).
 
 It makes heavy use of async/await and requires node v7.
 
 
 ## WorkQueue
 
-Producer enqueues a task to be worked on. Execution is blocked until the Broker
-confirms that it has received the message. That task will be picked up by ONE
-Worker and it will be acknowledged if the consuming function resolves. If an
-error happens within the consuming function the error event will be emitted and
-the task will be re-enqueued.
+Producer enqueues a task to be worked on. You may block execution until the Broker confirms that it has received the message. That task will be picked up by *one* Worker and it will be acknowledged if the consuming function resolves. If an error occurs within the consuming function the error event will be emitted on the queue and the task will be re-enqueued for another try.
 
 ```javascript
 const WorkQueue = require('ipc').WorkQueue;
@@ -62,11 +55,7 @@ await queue.close();
 
 ## PubSub
 
-Publisher publishes a message on a certain topic. Execution is blocked until the
-Broker confirms that it has received the message. The message will be broadcast
-to ALL Subscribers listening for that topic. There is no acknowledgement and
-persistence handling for these exchanges. Messages will be lost of nobody has
-subscribed to the topic.
+Publisher publishes a message on a certain topic. You may block execution until the Broker confirms that it has received the message. The message will be broadcast to *all* Subscribers listening on that topic. There is no acknowledgement and persistence handling for these exchanges. Messages will be lost of nobody has subscribed to the topic.
 
 ```javascript
 const PubSub = require('ipc').PubSub;
