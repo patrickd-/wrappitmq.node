@@ -90,7 +90,7 @@ const unsub = await pubsub.subscribe('login', async (message) => {
 await unsub();
 
 // Close connection.
-await queue.close();
+await pubsub.close();
 ```
 
 ## Tests
