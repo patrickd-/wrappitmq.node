@@ -148,6 +148,56 @@ describe('PubSub', () => {
       await sub.delete();
       await sub.close();
     });
+    it('should reject publish() if broker nacked message', async () => {
+      const barrier = new Barrier(1);
+      const pubsub = new PubSub(config);
+      pubsub.on('error', () => {});
+      await pubsub.connect();
+      pubsub.channel.publish = (exchange, topic, msg, options, cb) => {
+        cb(new Error('i do not want that message'));
+      };
+      pubsub.publish('test', {}).then(() => {
+        throw new Error('should have been rejected');
+      }).catch((err) => {
+        expect(err).to.be.an.instanceof(Error);
+        barrier.resolve();
+      });
+      await barrier.resolution();
+      await pubsub.close();
+    });
+    it('should reject publish() if broker nacked message', async () => {
+      const barrier = new Barrier(1);
+      const pubsub = new PubSub(config);
+      pubsub.on('error', () => {});
+      await pubsub.connect();
+      pubsub.channel.publish = (exchange, topic, msg, options, cb) => {
+        cb(new Error('i do not want that message'));
+      };
+      pubsub.publish('test', {}).then(() => {
+        throw new Error('should have been rejected');
+      }).catch((err) => {
+        expect(err).to.be.an.instanceof(Error);
+        barrier.resolve();
+      });
+      await barrier.resolution();
+      await pubsub.close();
+    });
+    it('should emit an error if one happens within a subscriber', async () => {
+      const barrier = new Barrier(1);
+      const pubsub = new PubSub(config);
+      const error = new Error('consumer error');
+      pubsub.on('error', (err) => {
+        expect(err).to.be.equal(error);
+        barrier.resolve();
+      });
+      await pubsub.connect();
+      await pubsub.subscribe('tt', async () => {
+        throw error;
+      });
+      pubsub.publish('tt', {});
+      await barrier.resolution();
+      await pubsub.close();
+    });
   });
   describe('ack() and nack()', () => {
     it('ack() calls should be ignored', async () => {
