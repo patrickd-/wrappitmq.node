@@ -55,7 +55,7 @@ await queue.close();
 
 ## PubSub
 
-Publisher publishes a message on a certain topic. You may block execution until the Broker confirms that it has received the message. The message will be broadcast to *all* Subscribers listening on that topic. There is no acknowledgement and persistence handling for these exchanges. Messages will be lost of nobody has subscribed to the topic.
+Publisher publishes a message on a certain topic. You may block execution until the Broker confirms that it has received the message. The message will be broadcast to *all* Subscribers listening on that topic. There is no acknowledgement and persistence handling for these exchanges. Messages will be lost if nobody has subscribed to the topic.
 
 ```javascript
 const PubSub = require('ipc').PubSub;
