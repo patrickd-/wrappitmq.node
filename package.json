@@ -1,9 +1,14 @@
 {
   "name": "wrappitmq",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Simplified AMQP 0-9-1 library offering a quick start into RabbitMQ based IPC.",
+  "homepage": "https://github.com/patrickd-/wrappitmq.node/",
   "license": "MIT",
   "author": "patrick.d@ventral.org",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:patrickd-/wrappitmq.node.git"
+  },
   "keywords": [
     "AMQP",
     "AMQP 0-9-1",
