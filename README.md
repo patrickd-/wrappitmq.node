@@ -106,9 +106,14 @@ await queue.close();
 
 ## Tests
 
-Run the libraries integration tests with
+Run the libraries integration tests with:
 ```
 $ AMQP_URL="amqp://user:pass@localhost:5672" npm test
+```
+
+To determine test coverage run:
+```
+$ AMQP_URL="amqp://user:pass@localhost:5672" npm run coverage
 ```
 
 ## Contributions
