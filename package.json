@@ -1,7 +1,7 @@
 {
   "name": "wrappitmq",
-  "version": "1.0.3",
-  "description": "Simplified AMQP 0-9-1 library offering a quick start into RabbitMQ based IPC.",
+  "version": "1.0.4",
+  "description": "Simplified AMQP 0-9-1 es7 library offering a quick start into RabbitMQ based IPC.",
   "homepage": "https://github.com/patrickd-/wrappitmq.node/",
   "license": "MIT",
   "author": "patrick.d@ventral.org",
@@ -14,8 +14,12 @@
     "AMQP 0-9-1",
     "RabbitMQ",
     "IPC",
+    "es7",
     "wrap",
-    "simple"
+    "simple",
+    "async",
+    "await",
+    "async-await"
   ],
   "engineStrict": true,
   "engines": {
