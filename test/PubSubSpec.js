@@ -167,6 +167,24 @@ describe('PubSub', () => {
         await pubsub.close();
       }
     });
+    it('should emit an error if one happens while decoding a message', async () => {
+      const barrier = new Barrier(1);
+      const pubsub = new PubSub(config);
+      pubsub.on('error', (err) => {
+        expect(err.message).to.be.equal('Unexpected token i in JSON at position 0');
+        barrier.resolve();
+      });
+      await pubsub.connect();
+      await pubsub.subscribe('tt', async () => {});
+      await new Promise((resolve, reject) => {
+        pubsub.channel.publish(pubsub.config.exchange, 'tt', Buffer.from('invalid json'), pubsub.config.publishOptions, (err) => {
+          if (err) return reject(err);
+          return resolve();
+        });
+      });
+      await barrier.resolution();
+      await pubsub.close();
+    });
     it('should emit an error if one happens within a subscriber', async () => {
       const barrier = new Barrier(1);
       const pubsub = new PubSub(config);

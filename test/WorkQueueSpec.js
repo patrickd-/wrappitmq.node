@@ -195,6 +195,26 @@ describe('WorkQueue', () => {
         await queue.close();
       }
     });
+    it('should emit an error if one happens decoding a message', async () => {
+      const barrier = new Barrier(1);
+      const queue = new WorkQueue(config);
+      queue.on('error', (err) => {
+        expect(err.message).to.be.equal('Unexpected token i in JSON at position 0');
+        if (barrier.callbacks.length > 0) barrier.resolve();
+      });
+      await queue.connect();
+      const cancel = await queue.consume(async () => {
+        await cancel();
+      });
+      await new Promise((resolve, reject) => {
+        queue.channel.sendToQueue(queue.config.queue, Buffer.from('invalid json'), queue.config.publishOptions, (err) => {
+          if (err) return reject(err);
+          return resolve();
+        });
+      });
+      await barrier.resolution();
+      await queue.close();
+    });
     it('should emit an error if one happens within a consumer', async () => {
       const barrier = new Barrier(1);
       const queue = new WorkQueue(config);
