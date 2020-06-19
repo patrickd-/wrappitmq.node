@@ -1,6 +1,6 @@
 {
   "name": "wrappitmq",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Simplified AMQP 0-9-1 es7 library offering a quick start into RabbitMQ based IPC.",
   "homepage": "https://github.com/patrickd-/wrappitmq.node/",
   "license": "MIT",
