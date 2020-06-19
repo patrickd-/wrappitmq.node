@@ -15,6 +15,13 @@ const configWithPrefetch = Object.assign({
   prefetch: 3,
 }, config);
 
+// We should never have unhandled exceptions, so let the whole thing fail when
+// they happen by exiting with an error code.
+process.on('unhandledRejection', (err) => {
+  console.dir(err); // eslint-disable-line no-console
+  process.exit(1);
+});
+
 describe('WorkQueue', () => {
   const cleanUp = async () => {
     const queue1 = new WorkQueue(config);
@@ -200,7 +207,7 @@ describe('WorkQueue', () => {
       const queue = new WorkQueue(config);
       queue.on('error', (err) => {
         expect(err.message).to.be.equal('Unexpected token i in JSON at position 0');
-        if (barrier.callbacks.length > 0) barrier.resolve();
+        barrier.resolve();
       });
       await queue.connect();
       const cancel = await queue.consume(async () => {

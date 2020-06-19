@@ -12,6 +12,13 @@ const config2 = {
   exchange: `${config.exchange}-2`,
 };
 
+// We should never have unhandled exceptions, so let the whole thing fail when
+// they happen by exiting with an error code.
+process.on('unhandledRejection', (err) => {
+  console.dir(err); // eslint-disable-line no-console
+  process.exit(1);
+});
+
 describe('PubSub', () => {
   describe('publish() and subscribe()', () => {
     it('should consume a message on a topic we published it on', async () => {
