@@ -105,9 +105,19 @@ To determine test coverage run:
 $ AMQP_URL="amqp://user:pass@localhost:5672" npm run coverage
 ```
 
+## Changelog
+
+### v1.1.0
+
+This version updated amqplib from [0.5 to 0.8](https://github.com/squaremo/amqp.node/blob/main/CHANGELOG.md), which came with some possibly breaking changes. Please make sure to test for these before upgrading wrappitmq to v1.1.0:
+
+* amqplib v0.8.0: Support for NodeJS prior to v10 is dropped ([PR 615](https://github.com/squaremo/amqp.node/pull/615))
+* amqplib v0.5.5: Minor but possibly breaking change: after [PR 498](https://github.com/squaremo/amqp.node/pull/498), all confirmation promises still unresolved will be rejected when their associated channel is closed.
+
 ## Contributions
 
 Are always welcome!
 
 * Initial development by @patrickd-
 * Name suggested by @leschekfm :D
+* Updated by @KevinBierende
