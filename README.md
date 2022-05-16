@@ -118,4 +118,5 @@ Are always welcome!
 
 * Initial development by @patrickd-
 * Name suggested by @leschekfm :D
-* Updated by @KevinBierende
+* Updated to 1.1 by @KevinBierende
+* Improved shutdown handling by @19XLR95
