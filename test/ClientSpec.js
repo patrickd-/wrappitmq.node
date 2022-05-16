@@ -108,6 +108,70 @@ describe('Client', () => {
       // How to cause a fatal error that doesn't just close the channel but the connection too?
     });
   });
+  it('should emit close event with err when connection close event provides one', (done) => {
+    const client = new Client(config);
+    client.on('error', () => {});
+    client.on('close', (err) => {
+      expect(err).to.be.an.instanceof(Error);
+      done();
+    });
+    client.connect().then(() => {
+      const connection = client.connection;
+      connection.emit('close', new Error('something went wrong!'));
+    });
+  });
+  it('should emit error event when connection error is emitted', (done) => {
+    const client = new Client(config);
+    client.on('error', (err) => {
+      expect(err).to.be.an.instanceof(Error);
+      done();
+    });
+    client.connect().then(() => {
+      const connection = client.connection;
+      connection.emit('error', new Error('something went wrong!'));
+    });
+  });
+  it('should skip connection close handling when reference was already cleared', (done) => {
+    const client = new Client(config);
+    client.on('error', () => {});
+    client.on('close', (err) => {
+      expect(err).to.equal(undefined);
+      done(new Error('this should not have been called'));
+    });
+    client.connect().then(() => {
+      const connection = client.connection;
+      client.connection = null;
+      connection.emit('close');
+      done();
+    });
+  });
+  it('should skip channel close handling when reference was already cleared', (done) => {
+    const client = new Client(config);
+    client.on('error', () => {});
+    client.on('close', (err) => {
+      expect(err).to.equal(undefined);
+      done(new Error('this should not have been called'));
+    });
+    client.connect().then(() => {
+      const channel = client.channel;
+      client.channel = null;
+      channel.emit('close');
+      done();
+    });
+  });
+  it('should skip disconnecting during channel close handling when connection reference is already cleared', (done) => {
+    const client = new Client(config);
+    client.on('error', () => {});
+    client.on('close', (err) => {
+      expect(err).to.equal(undefined);
+      done(new Error('this should not have been called'));
+    });
+    client.connect().then(() => {
+      client.connection = null;
+      client.channel.emit('close');
+      done();
+    });
+  });
   describe('encode() and decode()', () => {
     it('should return the same message decoded as when it was encoded to a Buffer', async () => {
       const originalMessage = { Test: 123, TestTest: '123', t: [{ a: 'b' }] };
