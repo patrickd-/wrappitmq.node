@@ -239,7 +239,7 @@ describe('WorkQueue', () => {
       await barrier.resolution();
       await queue.close();
     });
-    it.skip('should still be usable after cancelling a consumer', async () => {
+    it('should still be usable after cancelling a consumer', async () => {
       const barrier = new Barrier(1);
       const queue = new WorkQueue(config);
       const originalMessage = { Test: 123, TestTest: '123', t: [{ a: 'b' }] };
@@ -248,22 +248,22 @@ describe('WorkQueue', () => {
         throw new Error('this one was cancelled and still received something');
       });
       await cancel();
-      await queue.consume(async (message) => {
+      const cancel2 = await queue.consume(async (message) => {
         expect(message).to.deep.equal(originalMessage);
         barrier.resolve();
       });
       queue.enqueue(originalMessage);
       await barrier.resolution();
+      await cancel2();
       await queue.close();
     });
     it('should close connection if unsubscibed remotely', async () => {
       const barrier = new Barrier(1);
       const queue = new WorkQueue(config);
       await queue.connect();
-      const close = queue.close;
-      queue.close = () => {
+      queue.once('close', () => {
         barrier.resolve();
-      };
+      });
       queue.channel.consume = async (q, callback) => {
         await callback(null);
         return { consumerTag: 0 };
@@ -272,7 +272,6 @@ describe('WorkQueue', () => {
         throw new Error('this one was cancelled and still received something');
       });
       await barrier.resolution();
-      await close();
     });
   });
 });

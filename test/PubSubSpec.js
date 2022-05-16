@@ -229,10 +229,9 @@ describe('PubSub', () => {
       const barrier = new Barrier(1);
       const pubsub = new PubSub(config);
       await pubsub.connect();
-      const close = pubsub.close;
-      pubsub.close = () => {
+      pubsub.once('close', () => {
         barrier.resolve();
-      };
+      });
       pubsub.channel.consume = async (queue, callback) => {
         await callback(null);
         return { consumerTag: 0 };
@@ -241,7 +240,6 @@ describe('PubSub', () => {
         throw new Error('this one was cancelled and still received something');
       });
       await barrier.resolution();
-      await close();
     });
   });
   describe('ack() and nack()', () => {

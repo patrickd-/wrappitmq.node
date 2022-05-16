@@ -28,6 +28,7 @@ describe('Client', () => {
       // Connection & channel should be active.
       expect(connection.connection.expectSocketClose).to.equal(false);
       expect(channel.pending).to.deep.equal([]);
+      // Should only return once everything was closed.
       await client.close();
       // Connection & channel references in client should be cleared.
       expect(client.connection).to.equal(null);
@@ -35,6 +36,29 @@ describe('Client', () => {
       // Connection & channel should have been really closed.
       expect(connection.connection.expectSocketClose).to.equal(true);
       expect(channel.pending).to.equal(null);
+    });
+    it('should emit a close event when it`s closed', (done) => {
+      const client = new Client(config);
+      client.on('error', () => {});
+      client.on('close', (err) => {
+        expect(err).to.equal(undefined);
+        done();
+      });
+      client.connect().then(() => {
+        client.close();
+      });
+    });
+    it('should not emit a close event when it`s already closed', (done) => {
+      const client = new Client(config);
+      client.on('error', () => {});
+      client.connect().then(async () => {
+        await client.close();
+        client.on('close', () => {
+          done(new Error('this should not have been called'));
+        });
+        client.close();
+        done();
+      });
     });
   });
   it('should emit an error when one happens', (done) => {
@@ -48,7 +72,31 @@ describe('Client', () => {
       client.ack({ fields: { deliveryTag: 1 } });
     });
   });
-  it('should emit a close event with err when a fatal error occurred', (done) => {
+  it('should also close the connection when the channel is closed', (done) => {
+    const client = new Client(config);
+    let connection;
+    let channel;
+    client.on('error', () => {});
+    client.on('close', () => {
+      // Connection & channel references in client should be cleared.
+      expect(client.connection).to.equal(null);
+      expect(client.channel).to.equal(null);
+      // Connection & channel should have been really closed.
+      expect(connection.connection.expectSocketClose).to.equal(true);
+      expect(channel.pending).to.equal(null);
+      done();
+    });
+    client.connect().then(() => {
+      connection = client.connection;
+      channel = client.channel;
+      // Connection & channel should be active.
+      expect(connection.connection.expectSocketClose).to.equal(false);
+      expect(channel.pending).to.deep.equal([]);
+      // Cause an error on purpose, which will close the channel.
+      client.ack({ fields: { deliveryTag: 1 } });
+    });
+  });
+  it.skip('should emit a close event with err when a fatal error occurred', (done) => {
     const client = new Client(config);
     client.on('error', () => {});
     client.on('close', (err) => {
@@ -56,46 +104,8 @@ describe('Client', () => {
       done();
     });
     client.connect().then(() => {
-      // Cause an error on purpose
-      client.ack({ fields: { deliveryTag: 1 } });
-    });
-  });
-  it('should emit a close event when it`s closed', (done) => {
-    const client = new Client(config);
-    client.on('error', () => {});
-    client.on('close', (err) => {
-      expect(err).to.equal(undefined);
-      done();
-    });
-    client.connect().then(() => {
-      client.close();
-    });
-  });
-  it('should not emit a close event when it`s already closed', (done) => {
-    const client = new Client(config);
-    client.on('error', () => {});
-    client.on('close', (err) => {
-      expect(err).to.equal(undefined);
-      done(new Error('this should not have been called'));
-    });
-    client.connect().then(() => {
-      client.close();
-      client.connection = null;
-      done();
-    });
-  });
-  it('should not emit a close event when the channel already closed', (done) => {
-    const client = new Client(config);
-    client.on('error', () => {});
-    client.on('close', (err) => {
-      expect(err).to.equal(undefined);
-      done(new Error('this should not have been called'));
-    });
-    client.connect().then(() => {
-      const connection = client.connection;
-      client.connection = null;
-      connection.emit('close');
-      done();
+      // Cause a fatal error on purpose
+      // How to cause a fatal error that doesn't just close the channel but the connection too?
     });
   });
   describe('encode() and decode()', () => {
