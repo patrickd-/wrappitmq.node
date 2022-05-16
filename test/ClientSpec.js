@@ -19,6 +19,24 @@ describe('Client', () => {
       });
     });
   });
+  describe('close()', () => {
+    it('should properly close the channel and disconnect', async () => {
+      const client = new Client(config);
+      await client.connect();
+      const connection = client.connection;
+      const channel = client.channel;
+      // Connection & channel should be active.
+      expect(connection.connection.expectSocketClose).to.equal(false);
+      expect(channel.pending).to.deep.equal([]);
+      await client.close();
+      // Connection & channel references in client should be cleared.
+      expect(client.connection).to.equal(null);
+      expect(client.channel).to.equal(null);
+      // Connection & channel should have been really closed.
+      expect(connection.connection.expectSocketClose).to.equal(true);
+      expect(channel.pending).to.equal(null);
+    });
+  });
   it('should emit an error when one happens', (done) => {
     const client = new Client(config);
     client.on('error', (err) => {
